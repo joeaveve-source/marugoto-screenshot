@@ -28,7 +28,7 @@
     switch (msg && msg.type) {
       case 'PREPARE':    return prepare(msg.opts || {});
       case 'SCROLL_TO':  return scrollTo(msg.x, msg.y);
-      case 'HIDE_FIXED': return hideFixed();
+      case 'HIDE_FIXED': return hideFixed(msg.part);
       case 'CLEANUP':    return cleanup();
       default:           return { error: '不明な指示です' };
     }
@@ -200,11 +200,16 @@
 
   /* ---------------- 追従ヘッダー・フッターを隠す ---------------- */
 
-  function hideFixed() {
+  function hideFixed(part) {
+    // part='bottom' … 画面の下半分に貼り付いているもの（フッター等）だけ隠す。
+    //                 1枚目の前に呼ぶ。ページ上部のヘッダーは1枚目では見せたい一方、
+    //                 下の追従バーは1枚目に写ると絵の途中に残ってしまうため
+    // part省略      … 残りすべて（2枚目以降用）
     const vw = window.innerWidth;
     const vh = window.innerHeight;
     const all = document.querySelectorAll('body *');
     const limit = Math.min(all.length, 6000);
+    let count = 0;
 
     for (let i = 0; i < limit; i++) {
       const el = all[i];
@@ -218,10 +223,13 @@
       // 画面いっぱいの敷物（背景の層など）は、消すと絵が壊れるので残す
       if (r.width >= vw * 0.85 && r.height >= vh * 0.85) continue;
 
+      if (part === 'bottom' && r.top < vh * 0.5) continue;
+
       state.hidden.push({ el, value: el.style.getPropertyValue('visibility'), priority: el.style.getPropertyPriority('visibility') });
       el.style.setProperty('visibility', 'hidden', 'important');
+      count++;
     }
-    return { hidden: state.hidden.length };
+    return { hidden: count };
   }
 
   function restoreFixed() {
@@ -254,10 +262,15 @@
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
 
   function settle(frames) {
+    // 描画の区切りを待つ。ただしタブが裏に回ると描画が止まるので、
+    // 時間切れの保険を置いて、どんな状態でも必ず戻れるようにする
     return new Promise((resolve) => {
       let left = Math.max(1, frames);
-      const tick = () => { left--; left <= 0 ? resolve() : requestAnimationFrame(tick); };
+      let done = false;
+      const finish = () => { if (!done) { done = true; resolve(); } };
+      const tick = () => { left--; left <= 0 ? finish() : requestAnimationFrame(tick); };
       requestAnimationFrame(tick);
+      setTimeout(finish, 100 * Math.max(1, frames) + 150);
     });
   }
 })();

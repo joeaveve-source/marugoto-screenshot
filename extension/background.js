@@ -62,7 +62,9 @@ async function run(tab) {
 
   busy = true;
   try {
-    if (!tab.url || restricted.some((re) => re.test(tab.url))) {
+    // URLが読める場合だけ先に確かめる。読めない場合は差し込みを試し、
+    // ダメなら後段のcatchで案内を出す（門前払いにしない）
+    if (tab.url && restricted.some((re) => re.test(tab.url))) {
       await openResult({
         error: 'このページは Chrome の決まりで撮影できません。\n' +
                '設定画面・拡張機能の管理画面・Chromeウェブストアなどが対象です。\n' +
@@ -74,9 +76,14 @@ async function run(tab) {
     const settings = await getSettings();
     await badge('…', '#1f6feb');
 
-    // ページ側へ撮影用スクリプトを差し込む
+    // ページ側へ撮影用スクリプトを差し込む（読み込みが終わらないタブで
+    // 永久に待たされないよう、ここにも時間切れを置く）
     try {
-      await chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: false }, files: ['capture.js'] });
+      await withTimeout(
+        chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: false }, files: ['capture.js'] }),
+        15000,
+        'ページの読み込みが終わっていないようです。読み込みが完了してからお試しください。'
+      );
     } catch (e) {
       await openResult({
         error: 'このページに接続できませんでした。\n' +
@@ -85,12 +92,19 @@ async function run(tab) {
       return;
     }
 
-    const plan = await ask(tab.id, { type: 'PREPARE', opts: settings });
+    // 下準備（ページ下部までの先読み）は時間がかかることがあるため、長めに待つ
+    const plan = await ask(tab.id, { type: 'PREPARE', opts: settings }, 60000);
     if (plan.error) throw new Error(plan.error);
 
     const cols = Math.max(1, Math.ceil((plan.content.width - 1) / plan.frame.width));
     const rows = Math.max(1, Math.ceil((plan.content.height - 1) / plan.frame.height));
     const total = Math.min(cols * rows, settings.maxTiles);
+
+    // 画面の下に貼り付くバー（追従フッター等）は、1枚目に写ると絵の途中に残るため
+    // 撮り始める前に隠しておく。上のヘッダーは1枚目だけ見せる
+    if (settings.hideFixed) {
+      await ask(tab.id, { type: 'HIDE_FIXED', part: 'bottom' }).catch(() => {});
+    }
 
     const tiles = [];
     let index = 0;
@@ -167,9 +181,14 @@ async function captureWithRetry(tab) {
   throw new Error('画面の取り込みに失敗しました。（' + (lastError && lastError.message) + '）');
 }
 
-function ask(tabId, message) {
+function ask(tabId, message, timeoutMs = 20000) {
+  // ページ側が黙ったまま戻ってこない事態に備えて、必ず時間切れで戻る
   return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => {
+      reject(new Error('ページからの応答がありません。撮影中はそのタブを表に出したままにしてください。'));
+    }, timeoutMs);
     chrome.tabs.sendMessage(tabId, message, (res) => {
+      clearTimeout(timer);
       const err = chrome.runtime.lastError;
       if (err) return reject(new Error(err.message));
       resolve(res || {});
@@ -224,3 +243,13 @@ async function badge(text, color) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+function withTimeout(promise, ms, message) {
+  return new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error(message)), ms);
+    promise.then(
+      (v) => { clearTimeout(timer); resolve(v); },
+      (e) => { clearTimeout(timer); reject(e); }
+    );
+  });
+}
