@@ -57,7 +57,11 @@ const restricted = [
 let busy = false;
 
 async function run(tab) {
-  if (busy) return;
+  if (busy) {
+    // 撮影中の再クリック。無反応だと壊れたように見えるので、一言だけ返す
+    await badge('撮影中', '#d93025');
+    return;
+  }
   if (!tab || !tab.id) return;
 
   busy = true;
@@ -126,9 +130,10 @@ async function run(tab) {
         index++;
         await badge(`${index}/${total}`, '#1f6feb');
 
-        // 1枚目を撮り終えたら、追従ヘッダー・フッターを隠す（重複して写り込むため）
+        // 1枚目を撮り終えたら、追従ヘッダー・フッターを隠す（重複して写り込むため）。
+        // 飾りを隠すだけの補助なので、失敗しても撮影は続ける
         if (index === 1 && settings.hideFixed) {
-          await ask(tab.id, { type: 'HIDE_FIXED' });
+          await ask(tab.id, { type: 'HIDE_FIXED' }).catch(() => {});
         }
         if (index < total) await sleep(settings.intervalMs);
       }

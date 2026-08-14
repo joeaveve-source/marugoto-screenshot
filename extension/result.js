@@ -172,10 +172,10 @@ async function finish() {
   el.preview.src = pv.toDataURL('image/jpeg', 0.8);
   el.previewBox.hidden = false;
 
+  // 自動保存も、ボタンと同じ二重実行の防止（guard）を通す
   const auto = shot.meta.settings || {};
   if (auto.autoSave) {
-    if (auto.format === 'jpeg') await saveJpeg();
-    else await savePng();
+    await guard(auto.format === 'jpeg' ? saveJpeg : savePng);
   }
 }
 
@@ -307,8 +307,10 @@ function download(blob, filename) {
 }
 
 function name(ext) {
-  const base = (el.filename.value || 'screenshot').trim().replace(/[\\/:*?"<>|]/g, '_');
-  return base.replace(/\.(png|jpe?g|pdf)$/i, '') + ext;
+  // 空白だけの入力でも、必ず意味のあるファイル名に落ちるようにする
+  const base = (el.filename.value || '').trim().replace(/[\\/:*?"<>|]/g, '_')
+    .replace(/\.(png|jpe?g|pdf)$/i, '');
+  return (base || 'screenshot') + ext;
 }
 
 function buildFileName(m) {
