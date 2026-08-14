@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>撮影結果｜まるごとスクショ</title>
+<link rel="stylesheet" href="result.css">
+</head>
+<body>
+
+<header class="bar">
+  <div class="bar__title">まるごとスクショ</div>
+  <div class="bar__meta" id="meta"></div>
+</header>
+
+<main class="wrap">
+
+  <section class="panel" id="progressPanel">
+    <p class="progress__text" id="progressText">撮影した画像をつなぎ合わせています…</p>
+    <div class="progress__track"><div class="progress__bar" id="progressBar"></div></div>
+  </section>
+
+  <section class="panel panel--error" id="errorPanel" hidden>
+    <h2 class="error__head">撮影できませんでした</h2>
+    <p class="error__body" id="errorText"></p>
+  </section>
+
+  <section class="panel" id="notice" hidden>
+    <p class="notice__text" id="noticeText"></p>
+  </section>
+
+  <section class="tools" id="tools" hidden>
+    <div class="field">
+      <label class="field__label" for="filename">ファイル名</label>
+      <input class="field__input" id="filename" type="text" spellcheck="false">
+    </div>
+
+    <div class="buttons">
+      <button class="btn btn--main" id="savePng">画像で保存（きれい）</button>
+      <button class="btn" id="saveJpg">画像で保存（軽い）</button>
+      <button class="btn" id="savePdfA4">PDFで保存（用紙サイズに分ける）</button>
+      <button class="btn" id="savePdfLong">PDFで保存（長い1枚）</button>
+      <button class="btn" id="copy">コピーする</button>
+      <button class="btn btn--quiet" id="openSettings">設定を開く</button>
+    </div>
+
+    <p class="status" id="status" role="status"></p>
+  </section>
+
+  <section class="preview" id="previewBox" hidden>
+    <img class="preview__img" id="preview" alt="撮影したページ全体の縮小表示">
+  </section>
+
+</main>
+
+<script src="pdf.js"></script>
+<script src="result.js"></script>
+</body>
+</html>

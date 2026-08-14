@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>設定｜まるごとスクショ</title>
+<link rel="stylesheet" href="result.css">
+<style>
+  .wrap { max-width: 700px; }
+  .row { display: flex; gap: 14px; align-items: flex-start; padding: 14px 0; border-bottom: 1px solid var(--line); }
+  .row:last-of-type { border-bottom: 0; }
+  .row__body { flex: 1; }
+  .row__name { font-size: 14px; font-weight: 600; margin: 0 0 2px; }
+  .row__note { font-size: 12.5px; color: var(--ink-soft); margin: 0; }
+  .row__ctrl { flex: 0 0 auto; padding-top: 2px; }
+  select, input[type="number"] { font: inherit; font-size: 13.5px; padding: 6px 9px; border: 1px solid var(--line); border-radius: 6px; background: #fbfbfd; }
+  input[type="checkbox"] { width: 18px; height: 18px; }
+  .save { margin-top: 18px; display: flex; align-items: center; gap: 14px; }
+</style>
+</head>
+<body>
+
+<header class="bar"><div class="bar__title">まるごとスクショ　設定</div></header>
+
+<main class="wrap">
+  <section class="panel">
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">撮る前に、一度ページの下まで流す</p>
+        <p class="row__note">あとから読み込まれる画像や、スクロールで出てくる文字を先に表示させます。切ると速い代わりに、白い部分が残ることがあるのでご注意ください。</p>
+      </div>
+      <div class="row__ctrl"><input type="checkbox" id="preScroll"></div>
+    </div>
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">2枚目からは、追従するヘッダーやフッターを隠す</p>
+        <p class="row__note">画面に貼り付いて動くメニューが、何度も重なって写るのを防ぎます。うまく撮れないサイトでは切ってみてください。</p>
+      </div>
+      <div class="row__ctrl"><input type="checkbox" id="hideFixed"></div>
+    </div>
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">1枚撮るごとの待ち時間</p>
+        <p class="row__note">短くすると速くなりますが、Chromeの制限にかかって失敗しやすくなります。うまくいかないときは長くしてください（推奨450）。</p>
+      </div>
+      <div class="row__ctrl"><input type="number" id="intervalMs" min="200" max="3000" step="50"> ミリ秒</div>
+    </div>
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">画面が落ち着くまでの待ち時間</p>
+        <p class="row__note">スクロールしてから撮るまでの間です。動きの多いサイトでは長めにすると安定します（推奨250）。</p>
+      </div>
+      <div class="row__ctrl"><input type="number" id="settleMs" min="0" max="2000" step="50"> ミリ秒</div>
+    </div>
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">撮り終わったら、自動で保存する</p>
+        <p class="row__note">結果画面を開いた時点で、下で選んだ形式のまま保存します。</p>
+      </div>
+      <div class="row__ctrl"><input type="checkbox" id="autoSave"></div>
+    </div>
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">自動保存のときの形式</p>
+        <p class="row__note">きれいさ重視なら「画像（きれい）」、容量重視なら「画像（軽い）」です。</p>
+      </div>
+      <div class="row__ctrl">
+        <select id="format">
+          <option value="png">画像（きれい）</option>
+          <option value="jpeg">画像（軽い）</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">軽い画像とPDFの画質</p>
+        <p class="row__note">数字が大きいほどきれいで、容量が増えます（推奨92）。</p>
+      </div>
+      <div class="row__ctrl"><input type="number" id="jpegQuality" min="40" max="100" step="1"></div>
+    </div>
+
+    <div class="row">
+      <div class="row__body">
+        <p class="row__name">1回で撮る枚数の上限</p>
+        <p class="row__note">終わりのない作りのページで、いつまでも撮り続けるのを防ぐための歯止めです。</p>
+      </div>
+      <div class="row__ctrl"><input type="number" id="maxTiles" min="5" max="400" step="5"> 枚</div>
+    </div>
+
+    <div class="save">
+      <button class="btn btn--main" id="save">保存する</button>
+      <button class="btn" id="reset">初期の状態に戻す</button>
+      <span class="status" id="status"></span>
+    </div>
+
+  </section>
+
+  <section class="panel">
+    <p class="row__name">キーボードで撮るには</p>
+    <p class="row__note">初期設定では Alt キー ＋ Shift キー ＋ S です。変えたいときは、Chromeのアドレス欄に <code>chrome://extensions/shortcuts</code> と入れて開いてください。</p>
+  </section>
+</main>
+
+<script src="options.js"></script>
+</body>
+</html>

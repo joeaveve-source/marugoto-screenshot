@@ -1,0 +1,6 @@
+*.zip
+.DS_Store
+Thumbs.db
+desktop.ini
+__pycache__/
+*.pyc
