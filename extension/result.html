@@ -1,26 +1,26 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html lang="en">
 <head>
 <meta charset="utf-8">
-<title>撮影結果｜まるごとスクショ</title>
+<title data-i18n="resultTitle">Capture result</title>
 <link rel="stylesheet" href="result.css">
 </head>
 <body>
 
 <header class="bar">
-  <div class="bar__title">まるごとスクショ</div>
+  <div class="bar__title" data-i18n="appName"></div>
   <div class="bar__meta" id="meta"></div>
 </header>
 
 <main class="wrap">
 
   <section class="panel" id="progressPanel">
-    <p class="progress__text" id="progressText">撮影した画像をつなぎ合わせています…</p>
+    <p class="progress__text" id="progressText" data-i18n="stitching"></p>
     <div class="progress__track"><div class="progress__bar" id="progressBar"></div></div>
   </section>
 
   <section class="panel panel--error" id="errorPanel" hidden>
-    <h2 class="error__head">撮影できませんでした</h2>
+    <h2 class="error__head" data-i18n="errorHead"></h2>
     <p class="error__body" id="errorText"></p>
   </section>
 
@@ -30,28 +30,28 @@
 
   <section class="tools" id="tools" hidden>
     <div class="field">
-      <label class="field__label" for="filename">ファイル名</label>
+      <label class="field__label" for="filename" data-i18n="fieldFilename"></label>
       <input class="field__input" id="filename" type="text" spellcheck="false">
     </div>
 
     <div class="buttons">
-      <button class="btn btn--main" id="savePng">画像で保存（きれい）</button>
-      <button class="btn" id="saveJpg">画像で保存（軽い）</button>
-      <button class="btn" id="savePdfA4">PDFで保存（用紙サイズに分ける）</button>
-      <button class="btn" id="savePdfLong">PDFで保存（長い1枚）</button>
-      <button class="btn" id="copy">コピーする</button>
-      <button class="btn btn--quiet" id="openSettings">設定を開く</button>
+      <button class="btn btn--main" id="savePng" data-i18n="btnSavePng"></button>
+      <button class="btn" id="saveJpg" data-i18n="btnSaveJpg"></button>
+      <button class="btn" id="savePdf" data-i18n="btnSavePdf"></button>
+      <button class="btn" id="copy" data-i18n="btnCopy"></button>
+      <button class="btn btn--quiet" id="openSettings" data-i18n="btnSettings"></button>
     </div>
 
     <p class="status" id="status" role="status"></p>
   </section>
 
   <section class="preview" id="previewBox" hidden>
-    <img class="preview__img" id="preview" alt="撮影したページ全体の縮小表示">
+    <img class="preview__img" id="preview" data-i18n-alt="previewAlt" alt="">
   </section>
 
 </main>
 
+<script src="i18n.js"></script>
 <script src="pdf.js"></script>
 <script src="result.js"></script>
 </body>

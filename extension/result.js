@@ -1,10 +1,19 @@
 /**
- * まるごとスクショ ― 結果ページ
+ * WholePage Shot（まるごとスクショ）― 結果ページ
  *
  * 裏方から届いた「画面の断片」を、1枚の大きな絵につなぎ合わせて表示し、
  * 画像やPDFとして保存できるようにする。
  */
 
+const t = (key, subs) => chrome.i18n.getMessage(key, subs);
+
+/** 画面の下に付ける「（詳細：〜）」の部分 */
+function detail(e) {
+  const msg = e && (e.message || e);
+  return msg ? '\n\n(' + t('detailPrefix') + msg + ')' : '';
+}
+
+const JPEG_QUALITY = 0.92;         // 軽い画像とPDFの画質
 const MAX_DIM = 32000;             // 1辺の上限（これを超えると絵が作れない）
 const MAX_AREA = 250 * 1000 * 1000; // 面積の上限
 const A4_W = 595.276;              // ポイント
@@ -49,7 +58,7 @@ port.onMessage.addListener((msg) => {
 });
 
 port.onDisconnect.addListener(() => {
-  if (!shot.meta) showError('撮影データを受け取れませんでした。もう一度お試しください。');
+  if (!shot.meta) showError(t('errNoData'));
 });
 
 port.postMessage({ type: 'READY' });
@@ -62,7 +71,7 @@ function onMeta(msg) {
 
   const m = msg.meta;
   el.meta.textContent = (m.title || '') + '  —  ' + (m.url || '');
-  document.title = (m.title ? m.title + '｜' : '') + '撮影結果';
+  document.title = (m.title ? m.title + ' - ' : '') + t('resultTitle');
   el.filename.value = buildFileName(m);
   setProgress(0);
 }
@@ -94,7 +103,7 @@ function onTile(msg) {
 
     shot.done++;
     setProgress(shot.done / Math.max(1, shot.count));
-  }).catch((e) => showError('画像をつなぎ合わせる途中で止まりました。\n\n（詳細：' + (e.message || e) + '）'));
+  }).catch((e) => showError(t('errStitch') + detail(e)));
 
   chain.then(() => port.postMessage({ type: 'TILE_OK' }));
 }
@@ -134,10 +143,10 @@ function createCanvas(firstImage) {
 
   const notes = [];
   if (out < shot.scale - 0.001) {
-    notes.push('ページがとても長いため、' + Math.round((out / shot.scale) * 100) + '％の大きさに縮めて保存します。');
+    notes.push(t('noticeScaled', [String(Math.round((out / shot.scale) * 100))]));
   }
   if (m.truncated) {
-    notes.push('ページが長すぎたため、途中までの撮影になりました。');
+    notes.push(t('noticeTruncated'));
   }
   if (notes.length) {
     el.noticeText.textContent = notes.join('\n');
@@ -148,17 +157,17 @@ function createCanvas(firstImage) {
 function setProgress(ratio) {
   const pct = Math.round(Math.min(1, Math.max(0, ratio)) * 100);
   el.progressBar.style.width = pct + '%';
-  el.progressText.textContent = '撮影した画像をつなぎ合わせています…（' + pct + '％）';
+  el.progressText.textContent = t('stitching') + '… (' + pct + '%)';
 }
 
 async function finish() {
-  if (!shot.canvas) return showError('撮影された画像がありませんでした。');
+  if (!shot.canvas) return showError(t('errNoImage'));
 
   el.progressPanel.hidden = true;
   el.tools.hidden = false;
 
   const c = shot.canvas;
-  el.meta.textContent += '　／　' + c.width + '×' + c.height + '画素';
+  el.meta.textContent += '  /  ' + c.width + ' × ' + c.height + ' px';
 
   // 見本は小さく作り直して表示する（原寸のまま出すと重いため）
   const pv = document.createElement('canvas');
@@ -171,12 +180,6 @@ async function finish() {
   pctx.drawImage(c, 0, 0, pv.width, pv.height);
   el.preview.src = pv.toDataURL('image/jpeg', 0.8);
   el.previewBox.hidden = false;
-
-  // 自動保存も、ボタンと同じ二重実行の防止（guard）を通す
-  const auto = shot.meta.settings || {};
-  if (auto.autoSave) {
-    await guard(auto.format === 'jpeg' ? saveJpeg : savePng);
-  }
 }
 
 function showError(message) {
@@ -189,8 +192,7 @@ function showError(message) {
 
 document.getElementById('savePng').addEventListener('click', () => guard(savePng));
 document.getElementById('saveJpg').addEventListener('click', () => guard(saveJpeg));
-document.getElementById('savePdfA4').addEventListener('click', () => guard(() => savePdf('a4')));
-document.getElementById('savePdfLong').addEventListener('click', () => guard(() => savePdf('long')));
+document.getElementById('savePdf').addEventListener('click', () => guard(savePdf));
 document.getElementById('copy').addEventListener('click', () => guard(copyToClipboard));
 document.getElementById('openSettings').addEventListener('click', () => chrome.runtime.openOptionsPage());
 
@@ -203,7 +205,7 @@ async function guard(fn) {
   try {
     await fn();
   } catch (e) {
-    el.status.textContent = 'うまくいきませんでした。（' + (e.message || e) + '）';
+    el.status.textContent = t('statusFailed') + detail(e);
   } finally {
     buttons.forEach((b) => (b.disabled = false));
     working = false;
@@ -211,50 +213,29 @@ async function guard(fn) {
 }
 
 async function savePng() {
-  el.status.textContent = '画像を作っています…';
+  el.status.textContent = t('statusBuilding') + '…';
   const blob = await toBlob(shot.canvas, 'image/png');
   download(blob, name('.png'));
-  el.status.textContent = '保存しました（' + size(blob) + '）。';
+  el.status.textContent = t('statusSaved') + ' (' + size(blob) + ')';
 }
 
 async function saveJpeg() {
-  el.status.textContent = '画像を作っています…';
-  const q = (shot.meta.settings && shot.meta.settings.jpegQuality) || 0.92;
-  const blob = await toBlob(shot.canvas, 'image/jpeg', q);
+  el.status.textContent = t('statusBuilding') + '…';
+  const blob = await toBlob(shot.canvas, 'image/jpeg', JPEG_QUALITY);
   download(blob, name('.jpg'));
-  el.status.textContent = '保存しました（' + size(blob) + '）。';
+  el.status.textContent = t('statusSaved') + ' (' + size(blob) + ')';
 }
 
 async function copyToClipboard() {
-  el.status.textContent = 'コピーの用意をしています…';
+  el.status.textContent = t('statusCopying') + '…';
   // 押した瞬間の操作として扱ってもらうため、画像は「あとで届く約束」の形で渡す
   const item = new ClipboardItem({ 'image/png': toBlob(shot.canvas, 'image/png') });
   await navigator.clipboard.write([item]);
-  el.status.textContent = 'コピーしました。貼り付けてお使いください。';
+  el.status.textContent = t('statusCopied');
 }
 
-async function savePdf(mode) {
+async function savePdf() {
   const c = shot.canvas;
-  const q = (shot.meta.settings && shot.meta.settings.jpegQuality) || 0.92;
-
-  if (mode === 'long') {
-    const pageW = A4_W;
-    const pageH = pageW * (c.height / c.width);
-    if (pageH > 14400) {
-      el.status.textContent = 'このページは長すぎて、1枚のPDFにできません（PDFの決まりで上限があります）。「用紙サイズに分ける」でお試しください。';
-      return;
-    }
-    el.status.textContent = 'PDFを作っています…';
-    const jpeg = new Uint8Array(await (await toBlob(c, 'image/jpeg', q)).arrayBuffer());
-    const pdf = window.MarugotoPdf.build([{
-      jpeg, pxW: c.width, pxH: c.height,
-      pageW, pageH, drawX: 0, drawY: 0, drawW: pageW, drawH: pageH
-    }]);
-    download(pdf, name('.pdf'));
-    el.status.textContent = 'PDFを保存しました（' + size(pdf) + '）。';
-    return;
-  }
-
   const sliceH = Math.round(c.width * (A4_H / A4_W));
   const pages = [];
   const slice = document.createElement('canvas');
@@ -262,14 +243,14 @@ async function savePdf(mode) {
 
   for (let y = 0; y < c.height; y += sliceH) {
     const h = Math.min(sliceH, c.height - y);
-    el.status.textContent = 'PDFを作っています…（' + (pages.length + 1) + 'ページ目）';
+    el.status.textContent = t('statusPdfPage', [String(pages.length + 1)]) + '…';
     slice.width = c.width;
     slice.height = h;
     sctx.fillStyle = '#ffffff';
     sctx.fillRect(0, 0, slice.width, slice.height);
     sctx.drawImage(c, 0, y, c.width, h, 0, 0, c.width, h);
 
-    const jpeg = new Uint8Array(await (await toBlob(slice, 'image/jpeg', q)).arrayBuffer());
+    const jpeg = new Uint8Array(await (await toBlob(slice, 'image/jpeg', JPEG_QUALITY)).arrayBuffer());
     const drawH = A4_W * (h / c.width);
     pages.push({
       jpeg, pxW: slice.width, pxH: slice.height,
@@ -279,9 +260,9 @@ async function savePdf(mode) {
     await new Promise((r) => setTimeout(r, 0)); // 画面が固まらないよう、ひと呼吸おく
   }
 
-  const pdf = window.MarugotoPdf.build(pages);
+  const pdf = window.WholePagePdf.build(pages);
   download(pdf, name('.pdf'));
-  el.status.textContent = pages.length + 'ページのPDFを保存しました（' + size(pdf) + '）。';
+  el.status.textContent = t('statusPdfSaved', [String(pages.length)]) + ' (' + size(pdf) + ')';
 }
 
 /* ---------------- 小道具 ---------------- */
@@ -290,7 +271,7 @@ function toBlob(canvas, type, quality) {
   return new Promise((resolve, reject) => {
     canvas.toBlob((b) => {
       if (b) resolve(b);
-      else reject(new Error('画像が大きすぎて書き出せませんでした。設定で撮影の対象を分けてお試しください。'));
+      else reject(new Error(t('errTooLarge')));
     }, type, quality);
   });
 }

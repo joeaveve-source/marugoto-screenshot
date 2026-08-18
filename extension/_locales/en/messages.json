@@ -1,0 +1,185 @@
+{
+  "extName": {
+    "message": "WholePage Shot - Full Page Screenshot to PNG & PDF"
+  },
+  "extShortName": {
+    "message": "WholePage"
+  },
+  "appName": {
+    "message": "WholePage Shot"
+  },
+  "optionsBar": {
+    "message": "WholePage Shot - Settings"
+  },
+  "extDescription": {
+    "message": "Save the page you are viewing, from top to bottom, as a single image or PDF."
+  },
+  "actionTitle": {
+    "message": "Capture this whole page"
+  },
+  "commandCapture": {
+    "message": "Capture this whole page"
+  },
+  "resultTitle": {
+    "message": "Capture result"
+  },
+  "stitching": {
+    "message": "Stitching the captured tiles together"
+  },
+  "errorHead": {
+    "message": "Could not capture this page"
+  },
+  "fieldFilename": {
+    "message": "File name"
+  },
+  "btnSavePng": {
+    "message": "Save as image (sharp)"
+  },
+  "btnSaveJpg": {
+    "message": "Save as image (light)"
+  },
+  "btnSavePdf": {
+    "message": "Save as PDF (split into pages)"
+  },
+  "btnCopy": {
+    "message": "Copy"
+  },
+  "btnSettings": {
+    "message": "Open settings"
+  },
+  "previewAlt": {
+    "message": "Reduced preview of the captured page"
+  },
+  "optionsTitle": {
+    "message": "Settings"
+  },
+  "optPreScroll": {
+    "message": "Scroll to the bottom once before capturing"
+  },
+  "optPreScrollNote": {
+    "message": "Loads images and text that appear only as you scroll. Turning this off is faster, but blank areas may remain."
+  },
+  "optHideFixed": {
+    "message": "Hide sticky headers and footers from the second tile onward"
+  },
+  "optHideFixedNote": {
+    "message": "Stops floating menus from appearing over and over in the finished image. Turn it off if a site does not capture well."
+  },
+  "optInterval": {
+    "message": "Wait between captures"
+  },
+  "optIntervalNote": {
+    "message": "A shorter wait is faster, but Chrome limits how often a tab can be captured. Increase it if captures fail (450 is recommended)."
+  },
+  "unitMs": {
+    "message": "ms"
+  },
+  "btnSave": {
+    "message": "Save"
+  },
+  "btnReset": {
+    "message": "Restore defaults"
+  },
+  "statusOptSaved": {
+    "message": "Settings saved."
+  },
+  "statusOptReset": {
+    "message": "Defaults restored."
+  },
+  "shortcutHead": {
+    "message": "Capturing from the keyboard"
+  },
+  "shortcutNote": {
+    "message": "No shortcut is set by default. To add one, open chrome://extensions/shortcuts and assign any combination (for example Alt + Shift + S) to \"Capture this whole page\"."
+  },
+  "statusBuilding": {
+    "message": "Building the image"
+  },
+  "statusPdfPage": {
+    "message": "Building the PDF (page $PAGE$)",
+    "placeholders": {
+      "page": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusSaved": {
+    "message": "Saved"
+  },
+  "statusPdfSaved": {
+    "message": "Saved a $PAGES$-page PDF",
+    "placeholders": {
+      "pages": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusCopying": {
+    "message": "Getting the image ready to copy"
+  },
+  "statusCopied": {
+    "message": "Copied. You can paste it now."
+  },
+  "statusFailed": {
+    "message": "That did not work."
+  },
+  "noticeScaled": {
+    "message": "This page is very long, so it is saved at $PERCENT$% of full size.",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "noticeTruncated": {
+    "message": "The page was too long, so only part of it was captured."
+  },
+  "detailPrefix": {
+    "message": "details: "
+  },
+  "errRestricted": {
+    "message": "Chrome does not allow captures on this page.\nThis applies to the settings pages, the extensions manager and the Chrome Web Store.\nPlease open an ordinary website and try again."
+  },
+  "errNotLoaded": {
+    "message": "Could not reach this page.\nPlease reload the page and try again."
+  },
+  "errPageSlow": {
+    "message": "The page does not seem to have finished loading. Please try again once it has."
+  },
+  "errStopped": {
+    "message": "The capture stopped partway."
+  },
+  "errNoData": {
+    "message": "The captured data was not found. Please try again."
+  },
+  "errNoImage": {
+    "message": "No image was captured."
+  },
+  "errStitch": {
+    "message": "Stitching the image stopped partway."
+  },
+  "errTabSwitched": {
+    "message": "The window switched to another tab during the capture. Please keep that tab in front until it finishes."
+  },
+  "errNoResponse": {
+    "message": "The page is not responding. Please keep the tab in front while it is being captured."
+  },
+  "errCaptureFailed": {
+    "message": "Capturing the screen failed."
+  },
+  "errTooLarge": {
+    "message": "The image was too large to write out."
+  },
+  "errUnknownCmd": {
+    "message": "Unknown instruction."
+  },
+  "errBodyMissing": {
+    "message": "The page content has not loaded yet."
+  },
+  "errNoArea": {
+    "message": "No capturable area was found."
+  },
+  "badgeBusy": {
+    "message": "busy"
+  }
+}

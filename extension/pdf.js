@@ -1,5 +1,5 @@
 /**
- * まるごとスクショ ― PDFの組み立て
+ * WholePage Shot（まるごとスクショ） ― PDFの組み立て
  *
  * 外部のライブラリは使わず、JPEG画像を貼っただけの素直なPDFを自前で書き出す。
  * pages の1件が1ページ。長さの単位はポイント（1インチ＝72ポイント）。
@@ -75,5 +75,5 @@
 
   const n = (v) => (Math.round(v * 1000) / 1000).toString();
 
-  window.MarugotoPdf = { build };
+  window.WholePagePdf = { build };
 })();

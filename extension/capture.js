@@ -1,12 +1,15 @@
 /**
- * まるごとスクショ ― ページ側の担当
+ * WholePage Shot（まるごとスクショ）― ページ側の担当
  *
  * 裏方（background.js）からの指示を受けて、ページを少しずつスクロールする役。
  * 画面を撮る操作そのものはできないので、位置を合わせて「今です」と返すだけ。
  */
+
 (() => {
-  if (window.__marugotoShotReady) return;
-  window.__marugotoShotReady = true;
+  if (window.__wholePageShotReady) return;
+  window.__wholePageShotReady = true;
+
+  const t = (key) => chrome.i18n.getMessage(key);
 
   const state = {
     scroller: null,      // スクロールを担当する要素
@@ -30,14 +33,14 @@
       case 'SCROLL_TO':  return scrollTo(msg.x, msg.y);
       case 'HIDE_FIXED': return hideFixed(msg.part);
       case 'CLEANUP':    return cleanup();
-      default:           return { error: '不明な指示です' };
+      default:           return { error: t('errUnknownCmd') };
     }
   }
 
   /* ---------------- 下ごしらえ ---------------- */
 
   async function prepare(opts) {
-    if (!document.body) return { error: 'ページの中身がまだ読み込まれていません。' };
+    if (!document.body) return { error: t('errBodyMissing') };
 
     cleanup(); // 前回のやり残しがあれば戻す
 
@@ -66,7 +69,7 @@
     state.frame = frame;
 
     if (frame.width < 8 || frame.height < 8) {
-      return { error: '撮影できる範囲が見つかりませんでした。' };
+      return { error: t('errNoArea') };
     }
 
     return {

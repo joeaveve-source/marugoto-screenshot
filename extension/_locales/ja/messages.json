@@ -1,0 +1,185 @@
+{
+  "extName": {
+    "message": "まるごとスクショ"
+  },
+  "extShortName": {
+    "message": "まるごと"
+  },
+  "appName": {
+    "message": "まるごとスクショ"
+  },
+  "optionsBar": {
+    "message": "まるごとスクショ　設定"
+  },
+  "extDescription": {
+    "message": "開いているページの上から下までを、1枚の画像やPDFとして保存します。"
+  },
+  "actionTitle": {
+    "message": "このページ全体を撮る"
+  },
+  "commandCapture": {
+    "message": "このページ全体を撮る"
+  },
+  "resultTitle": {
+    "message": "撮影結果"
+  },
+  "stitching": {
+    "message": "撮影した画像をつなぎ合わせています"
+  },
+  "errorHead": {
+    "message": "撮影できませんでした"
+  },
+  "fieldFilename": {
+    "message": "ファイル名"
+  },
+  "btnSavePng": {
+    "message": "画像で保存（きれい）"
+  },
+  "btnSaveJpg": {
+    "message": "画像で保存（軽い）"
+  },
+  "btnSavePdf": {
+    "message": "PDFで保存（用紙サイズに分ける）"
+  },
+  "btnCopy": {
+    "message": "コピーする"
+  },
+  "btnSettings": {
+    "message": "設定を開く"
+  },
+  "previewAlt": {
+    "message": "撮影したページ全体の縮小表示"
+  },
+  "optionsTitle": {
+    "message": "設定"
+  },
+  "optPreScroll": {
+    "message": "撮る前に、一度ページの下まで流す"
+  },
+  "optPreScrollNote": {
+    "message": "あとから読み込まれる画像や、スクロールで出てくる文字を先に表示させます。切ると速い代わりに、白い部分が残ることがあるのでご注意ください。"
+  },
+  "optHideFixed": {
+    "message": "2枚目からは、追従するヘッダーやフッターを隠す"
+  },
+  "optHideFixedNote": {
+    "message": "画面に貼り付いて動くメニューが、何度も重なって写るのを防ぎます。うまく撮れないサイトでは切ってみてください。"
+  },
+  "optInterval": {
+    "message": "1枚撮るごとの待ち時間"
+  },
+  "optIntervalNote": {
+    "message": "短くすると速くなりますが、Chromeの制限にかかって失敗しやすくなります。うまくいかないときは長くしてください（推奨450）。"
+  },
+  "unitMs": {
+    "message": "ミリ秒"
+  },
+  "btnSave": {
+    "message": "保存する"
+  },
+  "btnReset": {
+    "message": "初期の状態に戻す"
+  },
+  "statusOptSaved": {
+    "message": "設定を保存しました。"
+  },
+  "statusOptReset": {
+    "message": "初期の状態に戻しました。"
+  },
+  "shortcutHead": {
+    "message": "キーボードで撮るには"
+  },
+  "shortcutNote": {
+    "message": "ショートカットキーは、初期状態では登録されていません。使いたいときは、Chromeのアドレス欄に chrome://extensions/shortcuts と入れて開き、「このページ全体を撮る」の欄に好きな組み合わせ（例：Alt ＋ Shift ＋ S）を登録してください。"
+  },
+  "statusBuilding": {
+    "message": "画像を作っています"
+  },
+  "statusPdfPage": {
+    "message": "PDFを作っています（$PAGE$ページ目）",
+    "placeholders": {
+      "page": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusSaved": {
+    "message": "保存しました"
+  },
+  "statusPdfSaved": {
+    "message": "$PAGES$ページのPDFを保存しました",
+    "placeholders": {
+      "pages": {
+        "content": "$1"
+      }
+    }
+  },
+  "statusCopying": {
+    "message": "コピーの用意をしています"
+  },
+  "statusCopied": {
+    "message": "コピーしました。貼り付けてお使いください。"
+  },
+  "statusFailed": {
+    "message": "うまくいきませんでした。"
+  },
+  "noticeScaled": {
+    "message": "ページがとても長いため、$PERCENT$％の大きさに縮めて保存します。",
+    "placeholders": {
+      "percent": {
+        "content": "$1"
+      }
+    }
+  },
+  "noticeTruncated": {
+    "message": "ページが長すぎたため、途中までの撮影になりました。"
+  },
+  "detailPrefix": {
+    "message": "詳細："
+  },
+  "errRestricted": {
+    "message": "このページは Chrome の決まりで撮影できません。\n設定画面・拡張機能の管理画面・Chromeウェブストアなどが対象です。\n通常のウェブサイトを開いた状態でお試しください。"
+  },
+  "errNotLoaded": {
+    "message": "このページに接続できませんでした。\nページを一度読み込み直してから、もう一度お試しください。"
+  },
+  "errPageSlow": {
+    "message": "ページの読み込みが終わっていないようです。読み込みが完了してからお試しください。"
+  },
+  "errStopped": {
+    "message": "撮影の途中で止まりました。"
+  },
+  "errNoData": {
+    "message": "撮影データが見つかりませんでした。もう一度お試しください。"
+  },
+  "errNoImage": {
+    "message": "撮影された画像がありませんでした。"
+  },
+  "errStitch": {
+    "message": "画像をつなぎ合わせる途中で止まりました。"
+  },
+  "errTabSwitched": {
+    "message": "撮影中に別のタブへ切り替わりました。撮り終わるまで、そのタブを開いたままにしてください。"
+  },
+  "errNoResponse": {
+    "message": "ページからの応答がありません。撮影中はそのタブを表に出したままにしてください。"
+  },
+  "errCaptureFailed": {
+    "message": "画面の取り込みに失敗しました。"
+  },
+  "errTooLarge": {
+    "message": "画像が大きすぎて書き出せませんでした。"
+  },
+  "errUnknownCmd": {
+    "message": "不明な指示です。"
+  },
+  "errBodyMissing": {
+    "message": "ページの中身がまだ読み込まれていません。"
+  },
+  "errNoArea": {
+    "message": "撮影できる範囲が見つかりませんでした。"
+  },
+  "badgeBusy": {
+    "message": "撮影中"
+  }
+}

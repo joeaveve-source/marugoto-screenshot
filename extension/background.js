@@ -1,5 +1,5 @@
 /**
- * まるごとスクショ ― 裏方（サービスワーカー）
+ * WholePage Shot（まるごとスクショ）― 裏方（サービスワーカー）
  *
  * やっていること：
  *  1. ツールバーのボタン（またはショートカット）が押されたら、開いているページに撮影用の
@@ -8,16 +8,18 @@
  *  3. 撮った断片を結果ページ（result.html）へ送り、そちらで1枚につなぎ合わせる
  */
 
+// 設定画面で変えられるのは、この3つだけ
 const DEFAULTS = {
-  intervalMs: 450,        // 1枚撮るごとの待ち時間（短すぎるとChromeに断られる）
-  settleMs: 250,          // スクロール後、描画が落ち着くまでの待ち時間
-  preScroll: true,        // 撮る前に一度下まで流して、遅れて出る画像を読み込ませる
-  hideFixed: true,        // 2枚目以降は追従ヘッダー・フッターを隠す
-  format: 'png',          // 保存形式の初期値
-  jpegQuality: 0.92,
-  autoSave: false,        // 撮り終わったら自動で保存する
-  maxTiles: 120           // 安全弁（これを超えたら打ち切る）
+  intervalMs: 450,   // 1枚撮るごとの待ち時間（短すぎるとChromeに断られる）
+  preScroll: true,   // 撮る前に一度下まで流して、遅れて出る画像を読み込ませる
+  hideFixed: true    // 2枚目以降は追従ヘッダー・フッターを隠す
 };
+
+// 触らせずに固定した値（開けても迷うだけで、得が小さいもの）
+const SETTLE_MS = 250;   // スクロール後、描画が落ち着くまでの待ち時間
+const MAX_TILES = 120;   // 安全弁（これを超えたら打ち切る）
+
+const t = (key) => chrome.i18n.getMessage(key);
 
 // 結果ページへ渡すための保管場所（撮影が終わってから結果タブを開く）
 const pendingJobs = new Map(); // resultTabId -> job
@@ -41,7 +43,7 @@ chrome.runtime.onConnect.addListener((port) => {
   const tabId = port.sender && port.sender.tab && port.sender.tab.id;
   const job = pendingJobs.get(tabId);
   if (!job) {
-    port.postMessage({ type: 'ERROR', message: '撮影データが見つかりませんでした。もう一度お試しください。' });
+    port.postMessage({ type: 'ERROR', message: t('errNoData') });
     return;
   }
   pendingJobs.delete(tabId);
@@ -59,7 +61,7 @@ let busy = false;
 async function run(tab) {
   if (busy) {
     // 撮影中の再クリック。無反応だと壊れたように見えるので、一言だけ返す
-    await badge('撮影中', '#d93025');
+    await badge(t('badgeBusy'), '#d93025');
     return;
   }
   if (!tab || !tab.id) return;
@@ -69,11 +71,7 @@ async function run(tab) {
     // URLが読める場合だけ先に確かめる。読めない場合は差し込みを試し、
     // ダメなら後段のcatchで案内を出す（門前払いにしない）
     if (tab.url && restricted.some((re) => re.test(tab.url))) {
-      await openResult({
-        error: 'このページは Chrome の決まりで撮影できません。\n' +
-               '設定画面・拡張機能の管理画面・Chromeウェブストアなどが対象です。\n' +
-               '通常のウェブサイトを開いた状態でお試しください。'
-      }, tab);
+      await openResult({ error: t('errRestricted') }, tab);
       return;
     }
 
@@ -86,13 +84,10 @@ async function run(tab) {
       await withTimeout(
         chrome.scripting.executeScript({ target: { tabId: tab.id, allFrames: false }, files: ['capture.js'] }),
         15000,
-        'ページの読み込みが終わっていないようです。読み込みが完了してからお試しください。'
+        t('errPageSlow')
       );
     } catch (e) {
-      await openResult({
-        error: 'このページに接続できませんでした。\n' +
-               'ページを一度読み込み直してから、もう一度お試しください。\n\n（詳細：' + (e.message || e) + '）'
-      }, tab);
+      await openResult({ error: t('errNotLoaded') + detail(e) }, tab);
       return;
     }
 
@@ -102,7 +97,7 @@ async function run(tab) {
 
     const cols = Math.max(1, Math.ceil((plan.content.width - 1) / plan.frame.width));
     const rows = Math.max(1, Math.ceil((plan.content.height - 1) / plan.frame.height));
-    const total = Math.min(cols * rows, settings.maxTiles);
+    const total = Math.min(cols * rows, MAX_TILES);
 
     // 画面の下に貼り付くバー（追従フッター等）は、1枚目に写ると絵の途中に残るため
     // 撮り始める前に隠しておく。上のヘッダーは1枚目だけ見せる
@@ -117,13 +112,13 @@ async function run(tab) {
     outer:
     for (let r = 0; r < rows; r++) {
       for (let c = 0; c < cols; c++) {
-        if (index >= settings.maxTiles) { truncated = true; break outer; }
+        if (index >= MAX_TILES) { truncated = true; break outer; }
 
         const want = { x: c * plan.frame.width, y: r * plan.frame.height };
         const at = await ask(tab.id, { type: 'SCROLL_TO', x: want.x, y: want.y });
         if (at.error) throw new Error(at.error);
 
-        await sleep(settings.settleMs);
+        await sleep(SETTLE_MS);
         const dataUrl = await captureWithRetry(tab);
 
         tiles.push({ dataUrl, x: at.x, y: at.y });
@@ -151,8 +146,7 @@ async function run(tab) {
         content: plan.content,
         viewport: plan.viewport,
         capturedAt: new Date().toISOString(),
-        truncated,
-        settings: { format: settings.format, jpegQuality: settings.jpegQuality, autoSave: settings.autoSave }
+        truncated
       },
       tiles
     }, tab);
@@ -160,7 +154,7 @@ async function run(tab) {
   } catch (e) {
     await ask(tab.id, { type: 'CLEANUP' }).catch(() => {});
     await badge('', '#d93025');
-    await openResult({ error: '撮影の途中で止まりました。\n\n（詳細：' + (e.message || e) + '）' }, tab);
+    await openResult({ error: t('errStopped') + detail(e) }, tab);
   } finally {
     busy = false;
   }
@@ -172,25 +166,27 @@ async function captureWithRetry(tab) {
     try {
       const active = await chrome.tabs.query({ active: true, windowId: tab.windowId });
       if (!active[0] || active[0].id !== tab.id) {
-        throw new Error('撮影中に別のタブへ切り替わりました。撮り終わるまで、そのタブを開いたままにしてください。');
+        // 別のタブが写り込むのを防ぐため、これだけは撮り直さずに打ち切る
+        const stop = new Error(t('errTabSwitched'));
+        stop.fatal = true;
+        throw stop;
       }
       return await chrome.tabs.captureVisibleTab(tab.windowId, { format: 'png' });
     } catch (e) {
       lastError = e;
-      const msg = String(e.message || e);
-      if (/切り替わりました/.test(msg)) throw e;
+      if (e.fatal) throw e;
       // 「1秒あたりの上限」に当たった場合は、少し待って撮り直す
       await sleep(700 + attempt * 500);
     }
   }
-  throw new Error('画面の取り込みに失敗しました。（' + (lastError && lastError.message) + '）');
+  throw new Error(t('errCaptureFailed') + detail(lastError));
 }
 
 function ask(tabId, message, timeoutMs = 20000) {
   // ページ側が黙ったまま戻ってこない事態に備えて、必ず時間切れで戻る
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => {
-      reject(new Error('ページからの応答がありません。撮影中はそのタブを表に出したままにしてください。'));
+      reject(new Error(t('errNoResponse')));
     }, timeoutMs);
     chrome.tabs.sendMessage(tabId, message, (res) => {
       clearTimeout(timer);
@@ -248,6 +244,12 @@ async function badge(text, color) {
 }
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** 画面の下に付ける「（詳細：〜）」の部分 */
+function detail(e) {
+  const msg = e && (e.message || e);
+  return msg ? '\n\n(' + t('detailPrefix') + msg + ')' : '';
+}
 
 function withTimeout(promise, ms, message) {
   return new Promise((resolve, reject) => {
