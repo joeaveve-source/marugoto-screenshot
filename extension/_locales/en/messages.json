@@ -39,7 +39,7 @@
     "message": "Save as image (light)"
   },
   "btnSavePdf": {
-    "message": "Save as PDF (split into pages)"
+    "message": "Save as PDF"
   },
   "btnCopy": {
     "message": "Copy"

@@ -39,7 +39,7 @@
     "message": "画像で保存（軽い）"
   },
   "btnSavePdf": {
-    "message": "PDFで保存（用紙サイズに分ける）"
+    "message": "PDFで保存"
   },
   "btnCopy": {
     "message": "コピーする"
