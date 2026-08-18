@@ -60,10 +60,10 @@
     "message": "Loads images and text that appear only as you scroll. Turning this off is faster, but blank areas may remain."
   },
   "optHideFixed": {
-    "message": "Hide sticky headers and footers from the second tile onward"
+    "message": "Hide menus that stay stuck to the screen, from the second slice onward"
   },
   "optHideFixedNote": {
-    "message": "Stops floating menus from appearing over and over in the finished image. Turn it off if a site does not capture well."
+    "message": "Stops the same menu from appearing over and over in the finished image. Turn it off if a site does not capture well."
   },
   "optInterval": {
     "message": "Wait between captures"
