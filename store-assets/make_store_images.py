@@ -94,18 +94,33 @@ def promo(w, h, path):
     return path
 
 
-def fit_screenshot(src, dst, w=1280, h=800):
-    """撮った画面を、余白なしでぴったり 1280×800 にする（中央を切り出して縮小）"""
+def fit_screenshot(src, dst, box=None, w=640, h=400):
+    """撮った画面を、余白なしでぴったり w×h にする
+
+    box=(左, 上, 右, 下) を渡すと、その範囲だけを使う。
+    タブの名前やブックマークが写り込むため、ブラウザの枠は必ず外して切り出すこと。
+    そこから 16:10 のかたちを中央で取り、縮小する（引き伸ばさない・ゆがませない）。
+    """
     im = Image.open(src).convert("RGB")
+    if box:
+        im = im.crop(box)
     sw, sh = im.size
     want = w / h
-    have = sw / sh
-    if have > want:                      # 横に広すぎる → 左右を切る
-        nw = int(round(sh * want)); im = im.crop(((sw - nw) // 2, 0, (sw - nw) // 2 + nw, sh))
-    elif have < want:                    # 縦に長すぎる → 上を残して下を切る
-        nh = int(round(sw / want)); im = im.crop((0, 0, sw, nh))
+    if sw / sh > want:                       # 横に広い → 左右を切る
+        nw = int(round(sh * want)); x0 = (sw - nw) // 2
+        im = im.crop((x0, 0, x0 + nw, sh))
+    else:                                    # 縦に長い → 上下を切る
+        nh = int(round(sw / want)); y0 = (sh - nh) // 2
+        im = im.crop((0, y0, sw, y0 + nh))
+    if im.size[0] < w:
+        print("  ※ 元が小さいため引き伸ばしになる:", im.size, "→", (w, h))
     im.resize((w, h), Image.LANCZOS).save(dst)
+    print("  作成:", dst, "（切り出し %dx%d → %dx%d）" % (im.size[0], im.size[1], w, h))
     return dst
+
+
+# この画面（1366×768）で、ブラウザの枠を除いた中身の範囲
+CONTENT_BOX = (0, 121, 1366, 720)
 
 
 if __name__ == "__main__":
