@@ -11,6 +11,7 @@
 > Save as PNG, JPEG or a paginated PDF, or copy straight to the clipboard.
 > Free, no ads, no account. Nothing leaves your computer, and no third-party libraries are used.
 > Permissions: `activeTab`, `scripting`, `storage` only.
+> Available on the [Chrome Web Store](https://chromewebstore.google.com/detail/gcbbmhgdggfcigmkhdjecdhikmaekpdl).
 
 ---
 
@@ -42,7 +43,19 @@
 
 ## 入れ方
 
-Chromeウェブストアには出していません。開発者モードで、フォルダを直接読み込ませて使います。
+Chromeウェブストアから入れられます。ボタンを1回押すだけです。
+
+**→ [Chromeウェブストアのページを開く](https://chromewebstore.google.com/detail/gcbbmhgdggfcigmkhdjecdhikmaekpdl)**
+
+「Chromeに追加」を押せば入ります。
+最後にChromeの右上のパズルのピースのマークを押して、ピンを留めておくとボタンが常に出ます。
+
+---
+
+### ウェブストアを使わずに入れる
+
+このリポジトリのフォルダを、Chromeに直接読み込ませる方法です。
+ストアに反映される前の最新のコードを試したいときや、手元にファイルを置いておきたいときに使ってください。
 
 1. このページの緑色の「Code」ボタンから「Download ZIP」を選び、パソコンに保存する
 2. 保存したZIPファイルを展開する（右クリックから「すべて展開」）
@@ -52,7 +65,6 @@ Chromeウェブストアには出していません。開発者モードで、�
 6. 展開したフォルダの中の **`extension`** フォルダを選ぶ（`manifest.json` が入っている階層）
 
 一覧に「まるごとスクショ」が出れば完了です。
-最後にChromeの右上のパズルのピースのマークを押して、ピンを留めておくとボタンが常に出ます。
 
 > 展開したフォルダは消さずに置いておいてください。Chromeはそのフォルダを読みに行き続けます。
 
